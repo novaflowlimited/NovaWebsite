@@ -73,6 +73,11 @@ export function rootMetadata(): Metadata {
       title: DEFAULT_TITLE_ABSOLUTE,
       description: DEFAULT_DESCRIPTION,
     },
+    icons: {
+      icon: [{ url: "/favicon.png", type: "image/png" }],
+      shortcut: "/favicon.png",
+      apple: "/favicon.png",
+    },
     category: "technology",
   };
 }

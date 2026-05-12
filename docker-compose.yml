@@ -1,5 +1,6 @@
 # Local PostgreSQL for development. Start: `docker compose up -d`
-# Then set DATABASE_URL in .env to match POSTGRES_* below and run:
+# Host port 5433 avoids conflict when another Postgres already uses 5432 on the machine.
+# Set DATABASE_URL to ...@localhost:5433/... (see .env.example). Then:
 #   npm run db:migrate && npm run db:seed
 services:
   postgres:
@@ -9,7 +10,7 @@ services:
       POSTGRES_PASSWORD: novaflow
       POSTGRES_DB: novaflow
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - novaflow_pg:/var/lib/postgresql/data
     healthcheck:

@@ -11,6 +11,7 @@ import {
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import { cn } from "@/lib/cn";
 import type { SiteSettingsPayload } from "@/lib/site-settings-payload";
@@ -98,7 +99,9 @@ export async function PowerfulSolutionsRow({ settings }: { settings: SiteSetting
   let services: ServiceDto[] = [];
   let err: string | null = null;
   try {
-    const res = await publicFetch<ApiListResponse<ServiceDto>>("/api/services");
+    const res = await publicFetch<ApiListResponse<ServiceDto>>("/api/services", {
+      next: { tags: [CACHE_TAGS.services] },
+    });
     services = res.data;
   } catch (e) {
     err = e instanceof ApiError ? `Unable to load services (${e.status}).` : "Unable to load services.";

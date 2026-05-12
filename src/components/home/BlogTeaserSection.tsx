@@ -5,13 +5,16 @@ import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import type { PaginatedPosts, PostDto } from "@/types";
 
 export async function BlogTeaserSection() {
   let res: PaginatedPosts;
   try {
-    res = await publicFetch<PaginatedPosts>("/api/posts?limit=3");
+    res = await publicFetch<PaginatedPosts>("/api/posts?limit=3", {
+      next: { tags: [CACHE_TAGS.posts] },
+    });
   } catch (e) {
     const msg = e instanceof ApiError ? `Unable to load posts (${e.status}).` : "Unable to load posts.";
     return (

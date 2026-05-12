@@ -1,10 +1,19 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import type { ApiListResponse, JobDto, JobType } from "@/types";
+import { routeMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = routeMetadata(
+  "Careers",
+  "Join Novaflow — open roles in engineering, operations, and field programs across Kenya.",
+  "/careers",
+);
 
 type Props = { searchParams?: Promise<{ dept?: string; type?: string }> };
 
@@ -15,7 +24,9 @@ export default async function CareersPage({ searchParams }: Props) {
 
   let jobs: JobDto[] = [];
   try {
-    const res = await publicFetch<ApiListResponse<JobDto>>("/api/jobs");
+    const res = await publicFetch<ApiListResponse<JobDto>>("/api/jobs", {
+      next: { tags: [CACHE_TAGS.jobs] },
+    });
     jobs = res.data;
   } catch (e) {
     const msg = e instanceof ApiError ? `Unable to load jobs (${e.status}).` : "Unable to load jobs.";

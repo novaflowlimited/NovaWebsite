@@ -1,6 +1,7 @@
 import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { ClientLogoDisplay } from "@/components/site/ClientLogoDisplay";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import type { SiteSettingsPayload } from "@/lib/site-settings-payload";
 import type { ApiListResponse } from "@/types";
@@ -25,7 +26,9 @@ export async function ClientLogosSection({
   let logos: ClientLogo[] = [];
   let err: string | null = null;
   try {
-    const res = await publicFetch<ApiListResponse<ClientLogo>>(`/api/client-logos?strip=${stripKind}`);
+    const res = await publicFetch<ApiListResponse<ClientLogo>>(`/api/client-logos?strip=${stripKind}`, {
+      next: { tags: [CACHE_TAGS.clientLogos] },
+    });
     logos = res.data;
   } catch (e) {
     err = e instanceof ApiError ? `Unable to load logos (${e.status}).` : "Unable to load logos.";

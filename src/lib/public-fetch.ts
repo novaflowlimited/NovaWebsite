@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { ApiError } from "./api-error";
 
+/** ISR-style window for untagged GETs; prefer `next: { tags: [...] }` + `revalidateTag` after admin writes. */
 const DEFAULT_REVALIDATE = 3600;
 
 /** Base URL for server-side fetches to this app's API (avoids localhost vs 127.0.0.1 / port mismatches). */

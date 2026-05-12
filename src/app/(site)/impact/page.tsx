@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { CoverageMap } from "@/components/impact/CoverageMap";
 import { ImpactHero } from "@/components/impact/ImpactHero";
@@ -7,15 +8,17 @@ import { ImpactStories } from "@/components/impact/ImpactStories";
 import { InfrastructureProcess } from "@/components/impact/InfrastructureProcess";
 import { PublicWifiSection } from "@/components/impact/PublicWifiSection";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import { getSiteSettings } from "@/lib/site-settings";
+import { routeMetadata } from "@/lib/seo";
 import type { ApiListResponse, CommunityStory, ImpactStat } from "@/types";
 
-export const metadata = {
-  title: "Impact & Connectivity — Novaflow",
-  description:
-    "We bring internet infrastructure and free public WiFi to underserved communities across Kenya.",
-};
+export const metadata: Metadata = routeMetadata(
+  "Impact & Connectivity",
+  "We bring internet infrastructure and free public WiFi to underserved communities across Kenya.",
+  "/impact",
+);
 
 export default async function ImpactPage() {
   const site = await getSiteSettings();
@@ -24,8 +27,12 @@ export default async function ImpactPage() {
   let err: string | null = null;
   try {
     const [statsRes, storiesRes] = await Promise.all([
-      publicFetch<ApiListResponse<ImpactStat>>("/api/impact/stats"),
-      publicFetch<ApiListResponse<CommunityStory>>("/api/impact/stories"),
+      publicFetch<ApiListResponse<ImpactStat>>("/api/impact/stats", {
+        next: { tags: [CACHE_TAGS.impactStats] },
+      }),
+      publicFetch<ApiListResponse<CommunityStory>>("/api/impact/stories", {
+        next: { tags: [CACHE_TAGS.impactStories] },
+      }),
     ]);
     stats = statsRes.data;
     stories = storiesRes.data;

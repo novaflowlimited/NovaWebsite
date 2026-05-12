@@ -1,15 +1,26 @@
+import type { Metadata } from "next";
 import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ContactForm } from "@/components/site/ContactForm";
 import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import type { ApiListResponse, ServiceDto } from "@/types";
+import { routeMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = routeMetadata(
+  "Contact",
+  "Get in touch with Novaflow for demos, partnerships, and support across Kenya.",
+  "/contact",
+);
 
 export default async function ContactPage() {
   let services: ServiceDto[] = [];
   try {
-    const res = await publicFetch<ApiListResponse<ServiceDto>>("/api/services");
+    const res = await publicFetch<ApiListResponse<ServiceDto>>("/api/services", {
+      next: { tags: [CACHE_TAGS.services] },
+    });
     services = res.data;
   } catch (e) {
     const msg = e instanceof ApiError ? `Unable to load services (${e.status}).` : "Unable to load services.";

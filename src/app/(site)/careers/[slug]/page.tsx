@@ -1,19 +1,49 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { buttonClassName } from "@/components/ui/Button";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
+import { canonicalUrl, clipDescription, SITE_NAME } from "@/lib/seo";
 import type { ApiItemResponse, JobDto } from "@/types";
 
 type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    const res = await publicFetch<ApiItemResponse<JobDto>>(`/api/jobs/${slug}`, {
+      next: { tags: [CACHE_TAGS.jobs] },
+    });
+    const job = res.data;
+    const description = clipDescription(`${job.title} — ${job.department}, ${job.location}. ${job.description}`);
+    const url = canonicalUrl(`/careers/${job.slug}`);
+    const fullTitle = `${job.title} | ${SITE_NAME}`;
+    return {
+      title: job.title,
+      description,
+      alternates: { canonical: url },
+      openGraph: { url, title: fullTitle, description },
+      twitter: { title: fullTitle, description },
+    };
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 404) {
+      return { title: "Not found", robots: { index: false, follow: false } };
+    }
+    throw e;
+  }
+}
 
 export default async function JobDetailPage({ params }: Props) {
   const { slug } = await params;
   let job: JobDto;
   try {
-    const res = await publicFetch<ApiItemResponse<JobDto>>(`/api/jobs/${slug}`);
+    const res = await publicFetch<ApiItemResponse<JobDto>>(`/api/jobs/${slug}`, {
+      next: { tags: [CACHE_TAGS.jobs] },
+    });
     job = res.data;
   } catch (e) {
     if (e instanceof ApiError && e.status === 404) notFound();

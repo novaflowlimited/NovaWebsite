@@ -1,5 +1,7 @@
 import type { LogoStripKind } from "@prisma/client";
 import { Hono } from "hono";
+import { revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "../middleware/auth";
 
@@ -47,6 +49,7 @@ logos.post("/", async (c) => {
       stripKind,
     },
   });
+  revalidateTag(CACHE_TAGS.clientLogos, "max");
   return c.json({ data: row });
 });
 
@@ -64,6 +67,7 @@ logos.put("/:id", async (c) => {
     where: { id: c.req.param("id") },
     data,
   });
+  revalidateTag(CACHE_TAGS.clientLogos, "max");
   return c.json({ data: row });
 });
 
@@ -71,6 +75,7 @@ logos.delete("/:id", async (c) => {
   const user = await requireAuth(c.req.header("authorization"));
   if (!user) return c.json({ error: "Unauthorized" }, 401);
   await prisma.clientLogo.delete({ where: { id: c.req.param("id") } });
+  revalidateTag(CACHE_TAGS.clientLogos, "max");
   return c.json({ success: true });
 });
 

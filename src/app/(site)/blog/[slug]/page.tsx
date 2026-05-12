@@ -1,26 +1,68 @@
 import Image from "next/image";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
+import { canonicalUrl, clipDescription, SITE_NAME } from "@/lib/seo";
 import type { ApiItemResponse, PaginatedPosts, PostDto } from "@/types";
 
 type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    const res = await publicFetch<ApiItemResponse<PostDto>>(`/api/posts/${slug}`, {
+      next: { tags: [CACHE_TAGS.posts] },
+    });
+    const post = res.data;
+    const description = clipDescription(post.excerpt || post.content);
+    const url = canonicalUrl(`/blog/${post.slug}`);
+    const fullTitle = `${post.title} | ${SITE_NAME}`;
+    return {
+      title: post.title,
+      description,
+      alternates: { canonical: url },
+      openGraph: {
+        url,
+        title: fullTitle,
+        description,
+        type: "article",
+        publishedTime:
+          typeof post.createdAt === "string"
+            ? post.createdAt
+            : new Date(post.createdAt as Date).toISOString(),
+        ...(post.coverImage ? { images: [{ url: post.coverImage }] } : {}),
+      },
+      twitter: { title: fullTitle, description, ...(post.coverImage ? { images: [post.coverImage] } : {}) },
+    };
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 404) {
+      return { title: "Not found", robots: { index: false, follow: false } };
+    }
+    throw e;
+  }
+}
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   let post: PostDto;
   try {
-    const res = await publicFetch<ApiItemResponse<PostDto>>(`/api/posts/${slug}`);
+    const res = await publicFetch<ApiItemResponse<PostDto>>(`/api/posts/${slug}`, {
+      next: { tags: [CACHE_TAGS.posts] },
+    });
     post = res.data;
   } catch (e) {
     if (e instanceof ApiError && e.status === 404) notFound();
     throw e;
   }
 
-  const list = await publicFetch<PaginatedPosts>("/api/posts?limit=20&page=1");
+  const list = await publicFetch<PaginatedPosts>("/api/posts?limit=20&page=1", {
+    next: { tags: [CACHE_TAGS.posts] },
+  });
   const related = list.data.filter((p) => p.id !== post.id && (p.category === post.category || p.tags.some((t) => post.tags.includes(t)))).slice(0, 3);
 
   return (

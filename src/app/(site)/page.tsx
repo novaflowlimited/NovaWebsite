@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { ClientLogosSection } from "@/components/home/ClientLogosSection";
 import { CTABanner } from "@/components/home/CTABanner";
 import { Hero } from "@/components/home/Hero";
@@ -9,6 +10,15 @@ import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { WhyNovaflow } from "@/components/home/WhyNovaflow";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { getSiteSettings } from "@/lib/site-settings";
+import { canonicalUrl, DEFAULT_DESCRIPTION, DEFAULT_TITLE_ABSOLUTE } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: { absolute: DEFAULT_TITLE_ABSOLUTE },
+  description: DEFAULT_DESCRIPTION,
+  alternates: { canonical: canonicalUrl("/") },
+  openGraph: { url: canonicalUrl("/"), title: DEFAULT_TITLE_ABSOLUTE, description: DEFAULT_DESCRIPTION },
+  twitter: { title: DEFAULT_TITLE_ABSOLUTE, description: DEFAULT_DESCRIPTION },
+};
 
 function SectionFallback({ className }: { className?: string }) {
   return (

@@ -1,4 +1,6 @@
 import { Hono } from "hono";
+import { revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "../middleware/auth";
 import type { PricingType, ServiceCategory } from "@prisma/client";
@@ -132,6 +134,7 @@ services.post("/", async (c) => {
     },
     include: { plans: true },
   });
+  revalidateTag(CACHE_TAGS.services, "max");
   return c.json({
     data: {
       ...created,
@@ -202,6 +205,7 @@ services.put("/:id", async (c) => {
     where: { id },
     include: { plans: { orderBy: { sortOrder: "asc" } } },
   });
+  revalidateTag(CACHE_TAGS.services, "max");
   return c.json({
     data: {
       ...row,
@@ -215,6 +219,7 @@ services.delete("/:id", async (c) => {
   const user = await requireAuth(c.req.header("authorization"));
   if (!user) return c.json({ error: "Unauthorized" }, 401);
   await prisma.service.delete({ where: { id: c.req.param("id") } });
+  revalidateTag(CACHE_TAGS.services, "max");
   return c.json({ success: true });
 });
 

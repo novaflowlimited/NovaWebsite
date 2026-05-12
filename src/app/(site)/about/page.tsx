@@ -1,10 +1,19 @@
 import Image from "next/image";
+import type { Metadata } from "next";
 import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import type { ApiListResponse, TeamMember } from "@/types";
+import { routeMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = routeMetadata(
+  "About",
+  "Meet the Novaflow team and learn how we build digital opportunity for Kenyan businesses and communities.",
+  "/about",
+);
 
 const values = [
   { title: "Innovation", body: "We ship pragmatic technology that solves real Kenyan problems." },
@@ -16,7 +25,9 @@ const values = [
 export default async function AboutPage() {
   let team: TeamMember[] = [];
   try {
-    const res = await publicFetch<ApiListResponse<TeamMember>>("/api/team");
+    const res = await publicFetch<ApiListResponse<TeamMember>>("/api/team", {
+      next: { tags: [CACHE_TAGS.team] },
+    });
     team = res.data;
   } catch (e) {
     const msg = e instanceof ApiError ? `Unable to load team (${e.status}).` : "Unable to load team.";

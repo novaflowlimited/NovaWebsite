@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import type { ApiItemResponse, MapFeaturedCounty } from "@/types";
 import { KENYA_MAP_DOTS, KENYA_OUTLINE_D } from "./kenya-map-geometry";
@@ -26,7 +27,9 @@ const FALLBACK = {
 export async function CoverageMap() {
   let featured: MapFeaturedCounty = FALLBACK;
   try {
-    const res = await publicFetch<ApiItemResponse<MapFeaturedCounty | null>>("/api/impact/map-feature");
+    const res = await publicFetch<ApiItemResponse<MapFeaturedCounty | null>>("/api/impact/map-feature", {
+      next: { tags: [CACHE_TAGS.impactMapFeature] },
+    });
     if (res.data) featured = res.data;
   } catch {
     // Keep FALLBACK if API is unavailable during build or offline.

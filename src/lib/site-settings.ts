@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { prisma } from "@/lib/db";
 import { mergeSiteSettingsPayload } from "@/lib/site-settings-merge";
 import type { SiteSettingsPayload } from "@/lib/site-settings-payload";
@@ -28,8 +29,8 @@ async function loadSiteSettings(): Promise<SiteSettingsPayload> {
 }
 
 const cachedSiteSettings = unstable_cache(loadSiteSettings, ["site-settings-v1"], {
-  tags: ["site-settings"],
+  tags: [CACHE_TAGS.siteSettings],
 });
 
-/** Merged site copy + nav/footer (CMS). Tagged for `revalidateTag("site-settings")` after admin saves. */
+/** Merged site copy + nav/footer (CMS). Tagged for `revalidateTag(CACHE_TAGS.siteSettings)` after admin saves. */
 export const getSiteSettings = cache(cachedSiteSettings);

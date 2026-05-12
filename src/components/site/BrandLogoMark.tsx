@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 
 type Variant = "navbar" | "footer";
@@ -31,19 +31,32 @@ export function BrandLogoMark({
   const [useFallback, setUseFallback] = useState(false);
   const loadedRef = useRef(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const imgRef = useRef<HTMLImageElement | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     loadedRef.current = false;
     setUseFallback(false);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     if (!trimmed) return;
 
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    const el = imgRef.current;
+    if (el?.complete && el.naturalWidth > 0) {
+      loadedRef.current = true;
+      return;
+    }
+
     timeoutRef.current = setTimeout(() => {
       if (!loadedRef.current) setUseFallback(true);
     }, LOAD_TIMEOUT_MS);
 
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
     };
   }, [trimmed]);
 
@@ -86,6 +99,7 @@ export function BrandLogoMark({
       )}
     >
       <img
+        ref={imgRef}
         src={trimmed}
         alt={logoAlt || "Logo"}
         className="absolute inset-0 h-full w-full object-contain p-0.5"
@@ -94,6 +108,7 @@ export function BrandLogoMark({
         referrerPolicy="no-referrer"
         onLoad={() => {
           loadedRef.current = true;
+          setUseFallback(false);
           if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
             timeoutRef.current = null;

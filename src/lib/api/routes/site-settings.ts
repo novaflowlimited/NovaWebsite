@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { prisma } from "@/lib/db";
 import { mergeSiteSettingsPayload } from "@/lib/site-settings-merge";
 import { siteSettingsPayloadSchema } from "@/lib/site-settings-schema";
@@ -40,7 +41,7 @@ siteSettings.put("/", async (c) => {
     update: { payload: JSON.stringify(parsed.data) },
   });
 
-  revalidateTag("site-settings", "max");
+  revalidateTag(CACHE_TAGS.siteSettings, "max");
   return c.json({ data: parsed.data });
 });
 

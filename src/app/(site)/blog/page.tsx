@@ -1,11 +1,20 @@
 import Image from "next/image";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import type { PaginatedPosts } from "@/types";
+import { routeMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = routeMetadata(
+  "Blog",
+  "Updates on products, connectivity programs, and policy from Novaflow.",
+  "/blog",
+);
 
 type Props = { searchParams?: Promise<{ page?: string; category?: string }> };
 
@@ -21,9 +30,10 @@ export default async function BlogPage({ searchParams }: Props) {
     qs.set("limit", "9");
     qs.set("page", String(page));
     if (category) qs.set("category", category);
+    const postsTag = { next: { tags: [CACHE_TAGS.posts] } };
     [res, allForCats] = await Promise.all([
-      publicFetch<PaginatedPosts>(`/api/posts?${qs.toString()}`),
-      publicFetch<PaginatedPosts>("/api/posts?limit=100&page=1"),
+      publicFetch<PaginatedPosts>(`/api/posts?${qs.toString()}`, postsTag),
+      publicFetch<PaginatedPosts>("/api/posts?limit=100&page=1", postsTag),
     ]);
   } catch (e) {
     const msg = e instanceof ApiError ? `Unable to load posts (${e.status}).` : "Unable to load posts.";

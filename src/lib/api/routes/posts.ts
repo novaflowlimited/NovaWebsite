@@ -1,4 +1,6 @@
 import { Hono } from "hono";
+import { revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "../middleware/auth";
 
@@ -93,6 +95,7 @@ posts.post("/", async (c) => {
       published: Boolean(body.published),
     },
   });
+  revalidateTag(CACHE_TAGS.posts, "max");
   return c.json({ data: { ...created, tags: parseTags(created.tags) } });
 });
 
@@ -123,6 +126,7 @@ posts.put("/:id", async (c) => {
       ...(body.published !== undefined ? { published: body.published } : {}),
     },
   });
+  revalidateTag(CACHE_TAGS.posts, "max");
   return c.json({ data: { ...updated, tags: parseTags(updated.tags) } });
 });
 
@@ -131,6 +135,7 @@ posts.delete("/:id", async (c) => {
   if (!user) return c.json({ error: "Unauthorized" }, 401);
   const id = c.req.param("id");
   await prisma.post.delete({ where: { id } });
+  revalidateTag(CACHE_TAGS.posts, "max");
   return c.json({ success: true });
 });
 

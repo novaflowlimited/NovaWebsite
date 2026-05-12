@@ -27,7 +27,7 @@ export function Navbar({ settings }: { settings: SiteSettingsPayload }) {
           <BrandLogoMark logoUrl={brand.logoUrl} logoAlt={brand.logoAlt} variant="navbar" />
           <span className="flex flex-col leading-tight">
             <span className="text-lg font-bold tracking-tight text-navy">{companyName}</span>
-            <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-orange">{navbar.tagline}</span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-orange-fg">{navbar.tagline}</span>
           </span>
         </Link>
 
@@ -65,11 +65,11 @@ export function Navbar({ settings }: { settings: SiteSettingsPayload }) {
           type="button"
           className="inline-flex rounded-lg p-2 text-navy md:hidden"
           aria-expanded={open}
-          aria-label="Menu"
+          aria-controls="site-mobile-nav"
+          aria-label={open ? "Close navigation menu" : "Open navigation menu"}
           onClick={() => setOpen((v) => !v)}
         >
-          <span className="sr-only">Toggle menu</span>
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
             {open ? (
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             ) : (
@@ -80,6 +80,8 @@ export function Navbar({ settings }: { settings: SiteSettingsPayload }) {
       </div>
 
       <div
+        id="site-mobile-nav"
+        inert={!open}
         className={cn(
           "border-t border-navy/10 bg-white transition-[max-height,opacity] duration-300 md:hidden",
           open ? "max-h-[520px] opacity-100" : "max-h-0 overflow-hidden opacity-0",

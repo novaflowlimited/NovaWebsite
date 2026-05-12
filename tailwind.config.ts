@@ -17,6 +17,8 @@ const config: Config = {
         orange: {
           DEFAULT: "#FF6B00",
           soft: "#FF9A4D",
+          /** Small text on cream/white — meets ~4.5:1 vs white for WCAG AA */
+          fg: "#B45309",
         },
         cream: "#FFF4EC",
       },

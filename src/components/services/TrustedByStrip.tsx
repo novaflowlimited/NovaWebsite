@@ -1,6 +1,7 @@
 import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { ClientLogoDisplay } from "@/components/site/ClientLogoDisplay";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import type { ApiListResponse, ClientLogo } from "@/types";
 
@@ -15,7 +16,9 @@ export async function TrustedByStrip() {
   let logos: ClientLogo[] = [];
   let err: string | null = null;
   try {
-    const res = await publicFetch<ApiListResponse<ClientLogo>>("/api/client-logos?strip=TRUSTED_BY");
+    const res = await publicFetch<ApiListResponse<ClientLogo>>("/api/client-logos?strip=TRUSTED_BY", {
+      next: { tags: [CACHE_TAGS.clientLogos] },
+    });
     logos = res.data;
   } catch (e) {
     err = e instanceof ApiError ? `Unable to load logos (${e.status}).` : "Unable to load logos.";

@@ -44,7 +44,7 @@ export function ImpactStories({ stories }: { stories: CommunityStory[] }) {
                   {s.coverImage ? (
                     <Image
                       src={s.coverImage}
-                      alt={s.title}
+                      alt=""
                       fill
                       className="object-cover transition duration-300 group-hover:scale-105"
                       sizes="(max-width: 768px) 100vw, 33vw"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import type { ClientLogo } from "@/types";
 
 const LOAD_TIMEOUT_MS = 12_000;
@@ -17,19 +17,32 @@ export function ClientLogoDisplay({
   const [useText, setUseText] = useState(!url);
   const loadedRef = useRef(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const imgRef = useRef<HTMLImageElement | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     loadedRef.current = false;
     setUseText(!url);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     if (!url) return;
 
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    const el = imgRef.current;
+    if (el?.complete && el.naturalWidth > 0) {
+      loadedRef.current = true;
+      return;
+    }
+
     timeoutRef.current = setTimeout(() => {
       if (!loadedRef.current) setUseText(true);
     }, LOAD_TIMEOUT_MS);
 
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
     };
   }, [url]);
 
@@ -50,6 +63,7 @@ export function ClientLogoDisplay({
   return (
     <span className={`relative inline-block h-9 w-[min(100%,160px)] md:h-11 md:w-[180px] ${className}`}>
       <img
+        ref={imgRef}
         src={url}
         alt={logo.name}
         className="absolute inset-0 h-full w-full object-contain object-center"
@@ -58,6 +72,7 @@ export function ClientLogoDisplay({
         referrerPolicy="no-referrer"
         onLoad={() => {
           loadedRef.current = true;
+          setUseText(false);
           if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
             timeoutRef.current = null;

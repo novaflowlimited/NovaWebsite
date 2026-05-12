@@ -1,4 +1,6 @@
 import { Hono } from "hono";
+import { revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "../middleware/auth";
 import type { StoryCategory } from "@prisma/client";
@@ -45,6 +47,7 @@ impact.put("/map-feature", async (c) => {
   const row = existing
     ? await prisma.mapFeaturedCounty.update({ where: { id: existing.id }, data })
     : await prisma.mapFeaturedCounty.create({ data });
+  revalidateTag(CACHE_TAGS.impactMapFeature, "max");
   return c.json({ data: row });
 });
 
@@ -98,6 +101,7 @@ impact.post("/stats", async (c) => {
       sortOrder: body.sortOrder ?? 0,
     },
   });
+  revalidateTag(CACHE_TAGS.impactStats, "max");
   return c.json({ data: row });
 });
 
@@ -109,6 +113,7 @@ impact.put("/stats/:id", async (c) => {
     where: { id: c.req.param("id") },
     data: body,
   });
+  revalidateTag(CACHE_TAGS.impactStats, "max");
   return c.json({ data: row });
 });
 
@@ -116,6 +121,7 @@ impact.delete("/stats/:id", async (c) => {
   const user = await requireAuth(c.req.header("authorization"));
   if (!user) return c.json({ error: "Unauthorized" }, 401);
   await prisma.impactStat.delete({ where: { id: c.req.param("id") } });
+  revalidateTag(CACHE_TAGS.impactStats, "max");
   return c.json({ success: true });
 });
 
@@ -154,6 +160,7 @@ impact.post("/stories", async (c) => {
       published: body.published ?? true,
     },
   });
+  revalidateTag(CACHE_TAGS.impactStories, "max");
   return c.json({ data: row });
 });
 
@@ -178,6 +185,7 @@ impact.put("/stories/:id", async (c) => {
     where: { id: c.req.param("id") },
     data: body,
   });
+  revalidateTag(CACHE_TAGS.impactStories, "max");
   return c.json({ data: row });
 });
 
@@ -185,6 +193,7 @@ impact.delete("/stories/:id", async (c) => {
   const user = await requireAuth(c.req.header("authorization"));
   if (!user) return c.json({ error: "Unauthorized" }, 401);
   await prisma.communityStory.delete({ where: { id: c.req.param("id") } });
+  revalidateTag(CACHE_TAGS.impactStories, "max");
   return c.json({ success: true });
 });
 

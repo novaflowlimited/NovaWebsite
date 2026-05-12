@@ -1,4 +1,6 @@
 import { Hono } from "hono";
+import { revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "../middleware/auth";
 
@@ -57,6 +59,7 @@ testimonials.post("/", async (c) => {
       published: body.published ?? true,
     },
   });
+  revalidateTag(CACHE_TAGS.testimonials, "max");
   return c.json({ data: row });
 });
 
@@ -79,6 +82,7 @@ testimonials.put("/:id", async (c) => {
     where: { id: c.req.param("id") },
     data: body,
   });
+  revalidateTag(CACHE_TAGS.testimonials, "max");
   return c.json({ data: row });
 });
 
@@ -86,6 +90,7 @@ testimonials.delete("/:id", async (c) => {
   const user = await requireAuth(c.req.header("authorization"));
   if (!user) return c.json({ error: "Unauthorized" }, 401);
   await prisma.testimonial.delete({ where: { id: c.req.param("id") } });
+  revalidateTag(CACHE_TAGS.testimonials, "max");
   return c.json({ success: true });
 });
 

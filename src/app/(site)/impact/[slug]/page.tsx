@@ -1,26 +1,63 @@
 import Image from "next/image";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
+import { canonicalUrl, clipDescription, SITE_NAME } from "@/lib/seo";
 import type { ApiItemResponse, ApiListResponse, CommunityStory } from "@/types";
 
 type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    const res = await publicFetch<ApiItemResponse<CommunityStory>>(`/api/impact/stories/${slug}`, {
+      next: { tags: [CACHE_TAGS.impactStories] },
+    });
+    const story = res.data;
+    const description = clipDescription(story.excerpt || story.content);
+    const url = canonicalUrl(`/impact/${story.slug}`);
+    const fullTitle = `${story.title} | ${SITE_NAME}`;
+    return {
+      title: story.title,
+      description,
+      alternates: { canonical: url },
+      openGraph: {
+        url,
+        title: fullTitle,
+        description,
+        ...(story.coverImage ? { images: [{ url: story.coverImage }] } : {}),
+      },
+      twitter: { title: fullTitle, description, ...(story.coverImage ? { images: [story.coverImage] } : {}) },
+    };
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 404) {
+      return { title: "Not found", robots: { index: false, follow: false } };
+    }
+    throw e;
+  }
+}
 
 export default async function ImpactStoryPage({ params }: Props) {
   const { slug } = await params;
   let story: CommunityStory;
   try {
-    const res = await publicFetch<ApiItemResponse<CommunityStory>>(`/api/impact/stories/${slug}`);
+    const res = await publicFetch<ApiItemResponse<CommunityStory>>(`/api/impact/stories/${slug}`, {
+      next: { tags: [CACHE_TAGS.impactStories] },
+    });
     story = res.data;
   } catch (e) {
     if (e instanceof ApiError && e.status === 404) notFound();
     throw e;
   }
 
-  const allRes = await publicFetch<ApiListResponse<CommunityStory>>("/api/impact/stories");
+  const allRes = await publicFetch<ApiListResponse<CommunityStory>>("/api/impact/stories", {
+    next: { tags: [CACHE_TAGS.impactStories] },
+  });
   const related = allRes.data
     .filter((s) => s.id !== story.id)
     .filter((s) => s.county === story.county || s.category === story.category)
@@ -30,7 +67,7 @@ export default async function ImpactStoryPage({ params }: Props) {
     <article>
       <div className="relative aspect-[21/9] bg-navy-dark">
         {story.coverImage ? (
-          <Image src={story.coverImage} alt={story.title} fill className="object-cover opacity-90" priority sizes="100vw" />
+          <Image src={story.coverImage} alt="" fill className="object-cover opacity-90" priority sizes="100vw" />
         ) : null}
         <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/90 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 mx-auto max-w-4xl px-4 pb-10 text-white md:px-6">
@@ -61,7 +98,7 @@ export default async function ImpactStoryPage({ params }: Props) {
                       {s.coverImage ? (
                         <Image
                           src={s.coverImage}
-                          alt={s.title}
+                          alt=""
                           fill
                           className="object-cover transition duration-300 group-hover:scale-[1.02]"
                           sizes="(max-width: 768px) 100vw, 33vw"

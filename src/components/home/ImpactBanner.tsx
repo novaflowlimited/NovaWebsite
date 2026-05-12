@@ -1,4 +1,5 @@
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import type { ApiListResponse } from "@/types";
 import type { ImpactStat } from "@/types";
@@ -10,7 +11,9 @@ export async function ImpactBanner({ statsStrip }: { statsStrip?: SiteSettingsPa
   let stats: ImpactStat[] | null = null;
   let err: string | null = null;
   try {
-    const res = await publicFetch<ApiListResponse<ImpactStat>>("/api/impact/stats");
+    const res = await publicFetch<ApiListResponse<ImpactStat>>("/api/impact/stats", {
+      next: { tags: [CACHE_TAGS.impactStats] },
+    });
     stats = res.data;
   } catch (e) {
     err = e instanceof ApiError ? `Unable to load stats (${e.status}).` : "Unable to load stats.";

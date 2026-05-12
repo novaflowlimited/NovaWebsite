@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { EnterpriseFeatures } from "@/components/services/EnterpriseFeatures";
@@ -7,22 +8,26 @@ import { ServicesTabsGrid } from "@/components/services/ServicesTabsGrid";
 import { TrustedByStrip } from "@/components/services/TrustedByStrip";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import { getSiteSettings } from "@/lib/site-settings";
+import { routeMetadata } from "@/lib/seo";
 import type { ApiListResponse, ServiceDto } from "@/types";
 
-export const metadata = {
-  title: "Products & Services — Novaflow",
-  description:
-    "From ISP operations to AI automation, Novaflow provides enterprise-grade tools designed for growth, reliability and scale.",
-};
+export const metadata: Metadata = routeMetadata(
+  "Products & Services",
+  "From ISP operations to AI automation, Novaflow provides enterprise-grade tools designed for growth, reliability and scale.",
+  "/services",
+);
 
 export default async function ServicesPage() {
   const settings = await getSiteSettings();
   let services: ServiceDto[] = [];
   let err: string | null = null;
   try {
-    const res = await publicFetch<ApiListResponse<ServiceDto>>("/api/services");
+    const res = await publicFetch<ApiListResponse<ServiceDto>>("/api/services", {
+      next: { tags: [CACHE_TAGS.services] },
+    });
     services = res.data;
   } catch (e) {
     err = e instanceof ApiError ? `Unable to load services (${e.status}).` : "Unable to load services.";

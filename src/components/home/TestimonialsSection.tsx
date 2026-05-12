@@ -2,6 +2,7 @@ import Image from "next/image";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import type { SiteSettingsPayload } from "@/lib/site-settings-payload";
 import type { ApiListResponse, Testimonial } from "@/types";
@@ -11,7 +12,9 @@ export async function TestimonialsSection({ settings }: { settings: SiteSettings
   let testimonials: Testimonial[] = [];
   let err: string | null = null;
   try {
-    const res = await publicFetch<ApiListResponse<Testimonial>>("/api/testimonials?featured=true");
+    const res = await publicFetch<ApiListResponse<Testimonial>>("/api/testimonials?featured=true", {
+      next: { tags: [CACHE_TAGS.testimonials] },
+    });
     testimonials = res.data;
   } catch (e) {
     err = e instanceof ApiError ? `Unable to load testimonials (${e.status}).` : "Unable to load testimonials.";
@@ -38,7 +41,11 @@ export async function TestimonialsSection({ settings }: { settings: SiteSettings
                 >
                   <QuoteGlyph />
                 </span>
-                <div className="flex gap-0.5 text-orange" aria-label={`Rating ${item.rating} out of 5`}>
+                <div
+                  className="flex gap-0.5 text-orange"
+                  role="img"
+                  aria-label={`Rating ${item.rating} out of 5 stars`}
+                >
                   {Array.from({ length: 5 }).map((_, i) => (
                     <span key={i} aria-hidden>
                       {i < item.rating ? "★" : "☆"}

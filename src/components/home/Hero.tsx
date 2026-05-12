@@ -76,7 +76,7 @@ function HeroVisual({
         <div className="flex items-center gap-2 pb-3">
           <BrandLogoMark logoUrl={brand.logoUrl} logoAlt={brand.logoAlt} variant="navbar" size="sm" />
           <span className="text-xs font-bold text-navy">{companyName}</span>
-          <span className="ml-auto text-[10px] font-medium text-navy/40">Overview</span>
+          <span className="ml-auto text-[10px] font-medium text-navy/55">Overview</span>
         </div>
         <div className="flex gap-3">
           <ul className="hidden flex-col gap-1.5 text-[10px] font-medium text-navy/55 sm:flex">

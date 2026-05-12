@@ -52,7 +52,7 @@ export function Footer({ settings }: { settings: SiteSettingsPayload }) {
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col items-center gap-3 border-t border-white/10 pt-7 text-xs text-white/65 md:flex-row md:justify-between">
+        <div className="mt-12 flex flex-col items-center gap-3 border-t border-white/10 pt-7 text-xs text-white/75 md:flex-row md:justify-between">
           <p>
             © {year} {copyrightEntity}. All rights reserved.
           </p>

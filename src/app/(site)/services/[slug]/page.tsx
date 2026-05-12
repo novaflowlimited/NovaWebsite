@@ -1,20 +1,50 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { buttonClassName } from "@/components/ui/Button";
 import { ApiError } from "@/lib/api-error";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import { formatKes } from "@/lib/format";
+import { canonicalUrl, clipDescription, SITE_NAME } from "@/lib/seo";
 import type { ApiItemResponse, ServiceDto } from "@/types";
 
 type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    const res = await publicFetch<ApiItemResponse<ServiceDto>>(`/api/services/${slug}`, {
+      next: { tags: [CACHE_TAGS.services] },
+    });
+    const s = res.data;
+    const description = clipDescription(s.tagline || s.description);
+    const url = canonicalUrl(`/services/${s.slug}`);
+    const fullTitle = `${s.name} | ${SITE_NAME}`;
+    return {
+      title: s.name,
+      description,
+      alternates: { canonical: url },
+      openGraph: { url, title: fullTitle, description },
+      twitter: { title: fullTitle, description },
+    };
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 404) {
+      return { title: "Not found", robots: { index: false, follow: false } };
+    }
+    throw e;
+  }
+}
 
 export default async function ServiceDetailPage({ params }: Props) {
   const { slug } = await params;
   let res: ApiItemResponse<ServiceDto>;
   try {
-    res = await publicFetch<ApiItemResponse<ServiceDto>>(`/api/services/${slug}`);
+    res = await publicFetch<ApiItemResponse<ServiceDto>>(`/api/services/${slug}`, {
+      next: { tags: [CACHE_TAGS.services] },
+    });
   } catch (e) {
     if (e instanceof ApiError && e.status === 404) notFound();
     throw e;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 
 type Variant = "navbar" | "footer";
@@ -12,7 +12,9 @@ const sizeClass: Record<Size, string> = {
   md: "h-9 w-9",
 };
 
-/** When `logoUrl` is empty, shows the “N” monogram (navbar navy / footer orange). */
+const LOAD_TIMEOUT_MS = 12_000;
+
+/** When `logoUrl` is empty or the image fails to load, shows the “N” monogram. */
 export function BrandLogoMark({
   logoUrl,
   logoAlt,
@@ -26,59 +28,86 @@ export function BrandLogoMark({
 }) {
   const trimmed = logoUrl?.trim();
   const dim = sizeClass[size];
-  const [imgFailed, setImgFailed] = useState(false);
+  const [useFallback, setUseFallback] = useState(false);
+  const loadedRef = useRef(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setImgFailed(false);
+    loadedRef.current = false;
+    setUseFallback(false);
+    if (!trimmed) return;
+
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      if (!loadedRef.current) setUseFallback(true);
+    }, LOAD_TIMEOUT_MS);
+
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, [trimmed]);
 
-  if (trimmed && !imgFailed) {
-    return (
-      <span
-        className={cn(
-          "relative inline-block shrink-0 overflow-hidden rounded-xl bg-white",
-          dim,
-          variant === "navbar" ? "shadow-sm ring-1 ring-navy/10" : "ring-1 ring-white/25",
-        )}
-      >
-        <img
-          src={trimmed}
-          alt={logoAlt || "Logo"}
-          className="absolute inset-0 h-full w-full object-contain p-0.5"
-          loading="eager"
-          decoding="async"
-          referrerPolicy="no-referrer"
-          onError={() => setImgFailed(true)}
-        />
-      </span>
-    );
-  }
-
-  if (variant === "navbar") {
-    return (
-      <span
-        className={cn(
-          "flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-navy to-navy-light text-base font-black text-white shadow-sm",
-          dim,
-          size === "sm" && "text-[10px]",
-        )}
-        aria-hidden
-      >
-        N
-      </span>
-    );
-  }
-
-  return (
+  const monogramNavbar = (
     <span
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-orange to-orange-soft text-base font-black text-white",
+        "flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-navy to-navy-light text-base font-black text-white shadow-sm",
         dim,
         size === "sm" && "text-[10px]",
       )}
       aria-hidden
     >
       N
+    </span>
+  );
+
+  const monogramFooter = (
+    <span
+      className={cn(
+        "flex shrink-0 items-center justify-center rounded-xl border border-white/25 bg-white/10 text-base font-black text-white shadow-sm backdrop-blur-sm",
+        dim,
+        size === "sm" && "text-[10px]",
+      )}
+      aria-hidden
+    >
+      N
+    </span>
+  );
+
+  if (!trimmed || useFallback) {
+    return variant === "navbar" ? monogramNavbar : monogramFooter;
+  }
+
+  return (
+    <span
+      className={cn(
+        "relative inline-block shrink-0 overflow-hidden rounded-xl bg-white",
+        dim,
+        variant === "navbar" ? "shadow-sm ring-1 ring-navy/10" : "ring-1 ring-white/25",
+      )}
+    >
+      <img
+        src={trimmed}
+        alt={logoAlt || "Logo"}
+        className="absolute inset-0 h-full w-full object-contain p-0.5"
+        loading="eager"
+        decoding="async"
+        referrerPolicy="no-referrer"
+        onLoad={() => {
+          loadedRef.current = true;
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+          }
+        }}
+        onError={() => {
+          loadedRef.current = true;
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+          }
+          setUseFallback(true);
+        }}
+      />
     </span>
   );
 }

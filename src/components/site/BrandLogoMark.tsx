@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { cn } from "@/lib/cn";
 
 type Variant = "navbar" | "footer";
@@ -36,12 +35,12 @@ export function BrandLogoMark({
           variant === "navbar" ? "shadow-sm ring-1 ring-navy/10" : "ring-1 ring-white/25",
         )}
       >
-        <Image
+        <img
           src={trimmed}
           alt={logoAlt || "Logo"}
-          fill
-          className="object-contain p-0.5"
-          sizes={size === "sm" ? "24px" : "36px"}
+          className="absolute inset-0 h-full w-full object-contain p-0.5"
+          loading="eager"
+          decoding="async"
         />
       </span>
     );

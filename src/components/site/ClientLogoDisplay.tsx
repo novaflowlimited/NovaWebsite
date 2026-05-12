@@ -1,4 +1,3 @@
-import Image from "next/image";
 import type { ClientLogo } from "@/types";
 
 /** Renders CMS `logoUrl` when set; otherwise the organization name as styled text. */
@@ -13,12 +12,12 @@ export function ClientLogoDisplay({
   if (url) {
     return (
       <span className={`relative inline-block h-9 w-[min(100%,160px)] md:h-11 md:w-[180px] ${className}`}>
-        <Image
+        <img
           src={url}
           alt={logo.name}
-          fill
-          className="object-contain object-center"
-          sizes="180px"
+          className="absolute inset-0 h-full w-full object-contain object-center"
+          loading="lazy"
+          decoding="async"
         />
       </span>
     );

@@ -37,12 +37,21 @@ upload.post("/", async (c) => {
       Key: key,
       Body: buf,
       ContentType: contentType,
+      CacheControl: "public, max-age=31536000, immutable",
     }),
   );
 
   const publicUrl = publicObjectUrl(key);
   if (!publicUrl) return c.json({ error: "Could not build public URL" }, 500);
-  return c.json({ publicUrl });
+
+  const notes: string[] = [];
+  if (cfg.publicBase.includes("r2.cloudflarestorage.com")) {
+    notes.push(
+      "R2_PUBLIC_URL looks like the S3 API host, not the public read URL. In Cloudflare R2 → your bucket → Settings, use the Public Bucket URL (r2.dev or custom domain) as R2_PUBLIC_URL — then rebuild/re-upload.",
+    );
+  }
+
+  return c.json({ publicUrl, ...(notes.length ? { notes } : {}) });
 });
 
 /** @deprecated — use POST /api/upload with multipart instead */

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 
 type Variant = "navbar" | "footer";
@@ -25,8 +26,13 @@ export function BrandLogoMark({
 }) {
   const trimmed = logoUrl?.trim();
   const dim = sizeClass[size];
+  const [imgFailed, setImgFailed] = useState(false);
 
-  if (trimmed) {
+  useEffect(() => {
+    setImgFailed(false);
+  }, [trimmed]);
+
+  if (trimmed && !imgFailed) {
     return (
       <span
         className={cn(
@@ -41,6 +47,8 @@ export function BrandLogoMark({
           className="absolute inset-0 h-full w-full object-contain p-0.5"
           loading="eager"
           decoding="async"
+          referrerPolicy="no-referrer"
+          onError={() => setImgFailed(true)}
         />
       </span>
     );

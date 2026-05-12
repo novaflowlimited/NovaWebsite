@@ -31,6 +31,7 @@ export function createR2Client(): S3Client | null {
   });
 }
 
+/** Public browser URL for an object key. `R2_PUBLIC_URL` must be the bucket’s public base (r2.dev or custom domain), not the S3 API endpoint. */
 export function publicObjectUrl(key: string): string | null {
   const c = getR2Config();
   if (!c) return null;

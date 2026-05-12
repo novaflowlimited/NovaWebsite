@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import type { ClientLogo } from "@/types";
 
 /** Renders CMS `logoUrl` when set; otherwise the organization name as styled text. */
@@ -9,7 +12,13 @@ export function ClientLogoDisplay({
   className?: string;
 }) {
   const url = logo.logoUrl?.trim();
-  if (url) {
+  const [imgFailed, setImgFailed] = useState(false);
+
+  useEffect(() => {
+    setImgFailed(false);
+  }, [url]);
+
+  if (url && !imgFailed) {
     return (
       <span className={`relative inline-block h-9 w-[min(100%,160px)] md:h-11 md:w-[180px] ${className}`}>
         <img
@@ -18,6 +27,8 @@ export function ClientLogoDisplay({
           className="absolute inset-0 h-full w-full object-contain object-center"
           loading="lazy"
           decoding="async"
+          referrerPolicy="no-referrer"
+          onError={() => setImgFailed(true)}
         />
       </span>
     );

@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-navy: #1b2a7a;
+  --color-navy-dark: #0d1a5c;
+  --color-navy-light: #2b3fa0;
+  --color-orange: #ff6b00;
+  --color-orange-soft: #ff9a4d;
+  --color-cream: #fff4ec;
+}
+
+body {
+  @apply bg-white text-navy antialiased;
+}

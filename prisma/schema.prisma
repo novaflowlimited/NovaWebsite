@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ServiceCategory {
+  SOFTWARE
+  CONNECTIVITY
+  AUTOMATION
+  IOT
+}
+
+enum PricingType {
+  FIXED
+  CUSTOM
+}
+
+enum PlanInterval {
+  MONTHLY
+  ANNUAL
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+enum StoryCategory {
+  SCHOOLS
+  DISPENSARIES
+  POLICE_STATIONS
+  COMMUNITY_CENTERS
+  OTHER
+}
+
+/// Which homepage / site logo row a `ClientLogo` belongs to (edited in Admin → Client logos).
+enum LogoStripKind {
+  TRUSTED_BY
+  SOFTWARE_CUSTOMERS
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String
+  content     String
+  coverImage  String?
+  category    String
+  tags        String   @default("[]") // JSON array stored as string (app parses)
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Service {
+  id           String          @id @default(cuid())
+  name         String
+  slug         String          @unique
+  tagline      String
+  description  String
+  icon         String          @default("layers")
+  category     ServiceCategory
+  features     String          @default("[]") // JSON string array
+  pricingType  PricingType     @default(FIXED)
+  published    Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  plans        Plan[]
+}
+
+model Plan {
+  id         String       @id @default(cuid())
+  serviceId  String
+  service    Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  name       String
+  priceKes   Int
+  interval   PlanInterval @default(MONTHLY)
+  features   String       @default("[]")
+  isPopular  Boolean      @default(false)
+  sortOrder  Int          @default(0)
+}
+
+model ImpactStat {
+  id        String   @id @default(cuid())
+  label     String
+  value     Int
+  icon      String   @default("activity")
+  sortOrder Int      @default(0)
+}
+
+/// Single featured county card on the public “Where we operate” map (edited in Admin → Impact → Map).
+model MapFeaturedCounty {
+  id                  String   @id @default(cuid())
+  countyName          String
+  statusLabel         String   @default("Connected")
+  description         String
+  schoolsCount        Int      @default(0)
+  dispensariesCount   Int      @default(0)
+  communityHotspots   Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model CommunityStory {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  location    String
+  county      String
+  excerpt     String
+  content     String
+  coverImage  String?
+  category    StoryCategory @default(OTHER)
+  beneficiary String
+  published   Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  bio       String
+  photo     String?
+  email     String?
+  linkedin  String?
+  twitter   String?
+  sortOrder Int      @default(0)
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  clientName  String
+  clientRole  String
+  company     String
+  companyLogo String?
+  content     String
+  rating      Int      @default(5)
+  featured    Boolean  @default(false)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model ClientLogo {
+  id        String         @id @default(cuid())
+  name      String
+  logoUrl   String
+  sortOrder Int            @default(0)
+  stripKind LogoStripKind @default(TRUSTED_BY)
+}
+
+model Job {
+  id            String    @id @default(cuid())
+  title         String
+  slug          String    @unique
+  department    String
+  location      String
+  type          JobType   @default(FULL_TIME)
+  experience    String    @default("")
+  description   String
+  requirements  String    @default("[]")
+  benefits      String    @default("[]")
+  salary        String?
+  published     Boolean   @default(true)
+  closingDate   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model User {
+  id           String @id @default(cuid())
+  email        String @unique
+  passwordHash String
+}
+
+/// Singleton row `id: "default"` — JSON string merged with code defaults for public site + CMS.
+model SiteSettings {
+  id        String   @id @default("default")
+  payload   String   @default("{}")
+  updatedAt DateTime @updatedAt
+}

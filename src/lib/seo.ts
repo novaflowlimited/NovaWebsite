@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { getSiteOrigin } from "@/lib/site-url";
 
+/** Fallback brand suffix when building metadata without loaded site settings. */
 export const SITE_NAME = "Novaflow Limited";
 
 export const DEFAULT_DESCRIPTION =
   "Connect. Build. Innovate. — Technology for Kenyan businesses and rural communities.";
 
-/** Home page title (not run through `title.template`). */
+/** Legacy home title if site settings are unavailable (should be rare). */
 export const DEFAULT_TITLE_ABSOLUTE = "Novaflow Limited — Connect. Build. Innovate.";
 
 export function canonicalUrl(pathname: string): string {
@@ -24,9 +25,14 @@ export function clipDescription(text: string, max = 155): string {
 }
 
 /** Standard metadata for a top-level marketing route. */
-export function routeMetadata(segmentTitle: string, description: string, path: string): Metadata {
+export function routeMetadata(
+  segmentTitle: string,
+  description: string,
+  path: string,
+  brandEntity: string = SITE_NAME,
+): Metadata {
   const url = canonicalUrl(path);
-  const fullTitle = `${segmentTitle} | ${SITE_NAME}`;
+  const fullTitle = `${segmentTitle} | ${brandEntity}`;
   return {
     title: segmentTitle,
     description,
@@ -36,43 +42,12 @@ export function routeMetadata(segmentTitle: string, description: string, path: s
   };
 }
 
+/** Root layout: env-based base URL, icons, crawl defaults. Marketing copy lives in `(site)` `generateMetadata` + CMS. */
 export function rootMetadata(): Metadata {
-  const base = getSiteOrigin();
-  const url = base.endsWith("/") ? base.slice(0, -1) : base;
+  const url = getSiteOrigin().replace(/\/$/, "");
   return {
     metadataBase: new URL(url),
-    title: { default: DEFAULT_TITLE_ABSOLUTE, template: `%s | ${SITE_NAME}` },
-    description: DEFAULT_DESCRIPTION,
-    applicationName: SITE_NAME,
-    referrer: "origin-when-cross-origin",
-    keywords: [
-      "Novaflow",
-      "Kenya",
-      "ISP billing",
-      "retail POS",
-      "pharmacy POS",
-      "public WiFi",
-      "digital inclusion",
-      "enterprise software",
-      "AI automation",
-    ],
-    authors: [{ name: SITE_NAME, url: url }],
-    creator: SITE_NAME,
-    publisher: SITE_NAME,
     robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
-    openGraph: {
-      type: "website",
-      locale: "en_KE",
-      url: `${url}/`,
-      siteName: SITE_NAME,
-      title: DEFAULT_TITLE_ABSOLUTE,
-      description: DEFAULT_DESCRIPTION,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: DEFAULT_TITLE_ABSOLUTE,
-      description: DEFAULT_DESCRIPTION,
-    },
     icons: {
       icon: [{ url: "/favicon.png", type: "image/png" }],
       shortcut: "/favicon.png",

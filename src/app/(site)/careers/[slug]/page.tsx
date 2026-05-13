@@ -7,7 +7,9 @@ import { buttonClassName } from "@/components/ui/Button";
 import { ApiError } from "@/lib/api-error";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
-import { canonicalUrl, clipDescription, SITE_NAME } from "@/lib/seo";
+import { canonicalUrl, clipDescription } from "@/lib/seo";
+import { siteTitleEntity } from "@/lib/seo-from-settings";
+import { getSiteSettings } from "@/lib/site-settings";
 import type { ApiItemResponse, JobDto } from "@/types";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -19,9 +21,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       next: { tags: [CACHE_TAGS.jobs] },
     });
     const job = res.data;
+    const entity = siteTitleEntity(await getSiteSettings());
     const description = clipDescription(`${job.title} — ${job.department}, ${job.location}. ${job.description}`);
     const url = canonicalUrl(`/careers/${job.slug}`);
-    const fullTitle = `${job.title} | ${SITE_NAME}`;
+    const fullTitle = `${job.title} | ${entity}`;
     return {
       title: job.title,
       description,

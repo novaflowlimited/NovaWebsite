@@ -8,7 +8,9 @@ import { ApiError } from "@/lib/api-error";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
 import { formatKes } from "@/lib/format";
-import { canonicalUrl, clipDescription, SITE_NAME } from "@/lib/seo";
+import { canonicalUrl, clipDescription } from "@/lib/seo";
+import { siteTitleEntity } from "@/lib/seo-from-settings";
+import { getSiteSettings } from "@/lib/site-settings";
 import type { ApiItemResponse, ServiceDto } from "@/types";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -20,9 +22,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       next: { tags: [CACHE_TAGS.services] },
     });
     const s = res.data;
+    const entity = siteTitleEntity(await getSiteSettings());
     const description = clipDescription(s.tagline || s.description);
     const url = canonicalUrl(`/services/${s.slug}`);
-    const fullTitle = `${s.name} | ${SITE_NAME}`;
+    const fullTitle = `${s.name} | ${entity}`;
     return {
       title: s.name,
       description,

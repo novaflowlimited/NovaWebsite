@@ -5,15 +5,17 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { ApiError } from "@/lib/api-error";
 import { CACHE_TAGS } from "@/lib/cache-tags";
+import { resolvedRouteMetadata } from "@/lib/seo-from-settings";
 import { publicFetch } from "@/lib/public-fetch";
 import type { ApiListResponse, TeamMember } from "@/types";
-import { routeMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = routeMetadata(
-  "About",
-  "Meet the Novaflow team and learn how we build digital opportunity for Kenyan businesses and communities.",
-  "/about",
-);
+export async function generateMetadata(): Promise<Metadata> {
+  return resolvedRouteMetadata(
+    "About",
+    "Meet the Novaflow team and learn how we build digital opportunity for Kenyan businesses and communities.",
+    "/about",
+  );
+}
 
 const values = [
   { title: "Innovation", body: "We ship pragmatic technology that solves real Kenyan problems." },

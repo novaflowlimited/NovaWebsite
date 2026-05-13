@@ -6,15 +6,17 @@ import { Card } from "@/components/ui/Card";
 import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { ApiError } from "@/lib/api-error";
 import { CACHE_TAGS } from "@/lib/cache-tags";
+import { resolvedRouteMetadata } from "@/lib/seo-from-settings";
 import { publicFetch } from "@/lib/public-fetch";
 import type { PaginatedPosts } from "@/types";
-import { routeMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = routeMetadata(
-  "Blog",
-  "Updates on products, connectivity programs, and policy from Novaflow.",
-  "/blog",
-);
+export async function generateMetadata(): Promise<Metadata> {
+  return resolvedRouteMetadata(
+    "Blog",
+    "Updates on products, connectivity programs, and policy from Novaflow.",
+    "/blog",
+  );
+}
 
 type Props = { searchParams?: Promise<{ page?: string; category?: string }> };
 

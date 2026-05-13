@@ -128,6 +128,12 @@ export const siteSettingsPayloadSchema = z.object({
     columns: z.array(footerColumnSchema).min(1),
     social: z.array(socialLinkSchema).min(1),
   }),
+  /** Search / social previews — all editable in admin (no hardcoded marketing strings required). */
+  seo: z.object({
+    homeTitle: z.string().max(120),
+    metaDescription: z.string().max(320),
+    keywords: z.array(z.string().max(80)).max(40),
+  }),
 });
 
 export type ParsedSiteSettings = z.infer<typeof siteSettingsPayloadSchema>;

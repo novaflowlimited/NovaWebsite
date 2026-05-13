@@ -3,15 +3,17 @@ import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { PricingClient } from "@/components/home/Pricing";
 import { ApiError } from "@/lib/api-error";
 import { CACHE_TAGS } from "@/lib/cache-tags";
+import { resolvedRouteMetadata } from "@/lib/seo-from-settings";
 import { publicFetch } from "@/lib/public-fetch";
 import type { ApiListResponse, ServiceDto } from "@/types";
-import { routeMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = routeMetadata(
-  "Pricing",
-  "Simple, transparent pricing. No hidden fees. Kenya Shilling pricing.",
-  "/pricing",
-);
+export async function generateMetadata(): Promise<Metadata> {
+  return resolvedRouteMetadata(
+    "Pricing",
+    "Simple, transparent pricing. No hidden fees. Kenya Shilling pricing.",
+    "/pricing",
+  );
+}
 
 export default async function PricingPage() {
   let services: ServiceDto[] = [];

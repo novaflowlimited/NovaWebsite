@@ -9,16 +9,18 @@ import { TrustedByStrip } from "@/components/services/TrustedByStrip";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { ApiError } from "@/lib/api-error";
 import { CACHE_TAGS } from "@/lib/cache-tags";
+import { resolvedRouteMetadata } from "@/lib/seo-from-settings";
 import { publicFetch } from "@/lib/public-fetch";
 import { getSiteSettings } from "@/lib/site-settings";
-import { routeMetadata } from "@/lib/seo";
 import type { ApiListResponse, ServiceDto } from "@/types";
 
-export const metadata: Metadata = routeMetadata(
-  "Products & Services",
-  "From ISP operations to AI automation, Novaflow provides enterprise-grade tools designed for growth, reliability and scale.",
-  "/services",
-);
+export async function generateMetadata(): Promise<Metadata> {
+  return resolvedRouteMetadata(
+    "Products & Services",
+    "From ISP operations to AI automation, Novaflow provides enterprise-grade tools designed for growth, reliability and scale.",
+    "/services",
+  );
+}
 
 export default async function ServicesPage() {
   const settings = await getSiteSettings();

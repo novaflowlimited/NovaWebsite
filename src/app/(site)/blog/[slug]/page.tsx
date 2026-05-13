@@ -7,7 +7,9 @@ import { Card } from "@/components/ui/Card";
 import { ApiError } from "@/lib/api-error";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { publicFetch } from "@/lib/public-fetch";
-import { canonicalUrl, clipDescription, SITE_NAME } from "@/lib/seo";
+import { canonicalUrl, clipDescription } from "@/lib/seo";
+import { siteTitleEntity } from "@/lib/seo-from-settings";
+import { getSiteSettings } from "@/lib/site-settings";
 import type { ApiItemResponse, PaginatedPosts, PostDto } from "@/types";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -19,9 +21,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       next: { tags: [CACHE_TAGS.posts] },
     });
     const post = res.data;
+    const entity = siteTitleEntity(await getSiteSettings());
     const description = clipDescription(post.excerpt || post.content);
     const url = canonicalUrl(`/blog/${post.slug}`);
-    const fullTitle = `${post.title} | ${SITE_NAME}`;
+    const fullTitle = `${post.title} | ${entity}`;
     return {
       title: post.title,
       description,

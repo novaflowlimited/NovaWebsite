@@ -241,6 +241,49 @@ export default function AdminSiteSettingsPage() {
       </Card>
 
       <Card>
+        <h2 className="text-lg font-bold text-navy">SEO (search &amp; link previews)</h2>
+        <p className="mt-1 text-sm text-navy/65">
+          Optional overrides for Google and social cards. If you leave the description empty, the site uses the hero subtitle, then the footer blurb. Keywords become the{" "}
+          <code className="rounded bg-slate-200 px-1 text-xs">meta keywords</code> tag (one phrase per comma or line).
+        </p>
+        <div className="mt-4 grid gap-4">
+          <Field
+            label="Homepage title override (optional)"
+            value={s.seo.homeTitle}
+            onChange={(v) => setS((p) => ({ ...p, seo: { ...p.seo, homeTitle: v } }))}
+          />
+          <p className="text-xs text-navy/55">If empty, the homepage title is built from company name and hero subtitle.</p>
+          <Field
+            label="Site meta description (optional)"
+            value={s.seo.metaDescription}
+            onChange={(v) => setS((p) => ({ ...p, seo: { ...p.seo, metaDescription: v } }))}
+            textarea
+          />
+          <div>
+            <label className="text-sm font-medium text-navy">Keywords (comma or new line, max 40)</label>
+            <textarea
+              rows={4}
+              className="mt-1 w-full rounded-lg border border-navy/15 px-3 py-2 font-mono text-sm"
+              value={s.seo.keywords.join(", ")}
+              onChange={(e) =>
+                setS((p) => ({
+                  ...p,
+                  seo: {
+                    ...p.seo,
+                    keywords: e.target.value
+                      .split(/[\n,]+/)
+                      .map((x) => x.trim())
+                      .filter(Boolean)
+                      .slice(0, 40),
+                  },
+                }))
+              }
+            />
+          </div>
+        </div>
+      </Card>
+
+      <Card>
         <h2 className="text-lg font-bold text-navy">Hero</h2>
         <div className="mt-4 grid gap-4">
           <Field label="Badge" value={s.hero.badge} onChange={(v) => setS((p) => ({ ...p, hero: { ...p.hero, badge: v } }))} />

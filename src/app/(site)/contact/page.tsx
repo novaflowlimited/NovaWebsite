@@ -5,15 +5,17 @@ import { ContactForm } from "@/components/site/ContactForm";
 import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { ApiError } from "@/lib/api-error";
 import { CACHE_TAGS } from "@/lib/cache-tags";
+import { resolvedRouteMetadata } from "@/lib/seo-from-settings";
 import { publicFetch } from "@/lib/public-fetch";
 import type { ApiListResponse, ServiceDto } from "@/types";
-import { routeMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = routeMetadata(
-  "Contact",
-  "Get in touch with Novaflow for demos, partnerships, and support across Kenya.",
-  "/contact",
-);
+export async function generateMetadata(): Promise<Metadata> {
+  return resolvedRouteMetadata(
+    "Contact",
+    "Get in touch with Novaflow for demos, partnerships, and support across Kenya.",
+    "/contact",
+  );
+}
 
 export default async function ContactPage() {
   let services: ServiceDto[] = [];

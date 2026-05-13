@@ -97,6 +97,14 @@ export type SiteSettingsPayload = {
     columns: FooterColumn[];
     social: SocialLink[];
   };
+  seo: {
+    /** Overrides the homepage `<title>` when non-empty; otherwise derived from company + hero subtitle. */
+    homeTitle: string;
+    /** Global meta description when non-empty; otherwise hero subtitle, then footer blurb. */
+    metaDescription: string;
+    /** `meta name="keywords"` (edit in admin; e.g. ISP billing Kenya, rural WiFi). */
+    keywords: string[];
+  };
 };
 
 export const DEFAULT_SITE_SETTINGS: SiteSettingsPayload = {
@@ -290,5 +298,10 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsPayload = {
       { platform: "instagram", href: "https://instagram.com", label: "Instagram" },
       { platform: "youtube", href: "https://youtube.com", label: "YouTube" },
     ],
+  },
+  seo: {
+    homeTitle: "",
+    metaDescription: "",
+    keywords: [],
   },
 };

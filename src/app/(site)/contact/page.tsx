@@ -6,6 +6,7 @@ import { ErrorRetry } from "@/components/site/ErrorRetry";
 import { ApiError } from "@/lib/api-error";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { resolvedRouteMetadata } from "@/lib/seo-from-settings";
+import { getSiteSettings } from "@/lib/site-settings";
 import { publicFetch } from "@/lib/public-fetch";
 import type { ApiListResponse, ServiceDto } from "@/types";
 
@@ -18,6 +19,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ContactPage() {
+  const settings = await getSiteSettings();
+  const { footer } = settings;
+
   let services: ServiceDto[] = [];
   try {
     const res = await publicFetch<ApiListResponse<ServiceDto>>("/api/services", {
@@ -33,6 +37,10 @@ export default async function ContactPage() {
     );
   }
 
+  const addressLines = [footer.officeStreetLine, footer.officeCityLine, footer.officeCounty]
+    .map((l) => l?.trim())
+    .filter(Boolean);
+
   return (
     <div className="bg-cream py-12 md:py-16">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
@@ -44,39 +52,46 @@ export default async function ContactPage() {
         />
         <div className="grid gap-10 lg:grid-cols-2">
           <Card padding="lg">
-            <h2 className="text-lg font-bold text-navy">Nairobi office</h2>
-            <p className="mt-3 text-sm text-navy/75">
-              Westlands Business District
-              <br />
-              Nairobi, Kenya
-            </p>
+            <h2 className="text-lg font-bold text-navy">{footer.officeTitle}</h2>
+            {addressLines.length > 0 ? (
+              <p className="mt-3 text-sm text-navy/75">
+                {addressLines.map((line, i) => (
+                  <span key={i}>
+                    {i > 0 ? <br /> : null}
+                    {line}
+                  </span>
+                ))}
+              </p>
+            ) : null}
             <ul className="mt-6 space-y-3 text-sm text-navy/80">
               <li>
                 Phone:{" "}
-                <a href="tel:+254700000000" className="font-semibold text-orange hover:underline">
-                  +254 700 000 000
+                <a href={footer.phoneHref} className="font-semibold text-orange hover:underline">
+                  {footer.phone}
                 </a>
               </li>
               <li>
                 Email:{" "}
-                <a href="mailto:hello@novaflow.co.ke" className="font-semibold text-orange hover:underline">
-                  hello@novaflow.co.ke
+                <a href={footer.emailHref} className="font-semibold text-orange hover:underline">
+                  {footer.email}
                 </a>
               </li>
-              <li>
-                WhatsApp:{" "}
-                <a
-                  href="https://wa.me/254700000000"
-                  className="font-semibold text-orange hover:underline"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Chat with us
-                </a>
-              </li>
+              {footer.whatsappHref?.trim() ? (
+                <li>
+                  WhatsApp:{" "}
+                  <a
+                    href={footer.whatsappHref.trim()}
+                    className="font-semibold text-orange hover:underline"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {footer.whatsappLabel?.trim() || "Chat with us"}
+                  </a>
+                </li>
+              ) : null}
             </ul>
             <div className="mt-8 rounded-xl border border-navy/10 bg-white p-4 text-center text-xs text-navy/60">
-              Map placeholder — Kenya / Nairobi
+              Map placeholder — {footer.officeCounty?.trim() || footer.officeCityLine?.trim() || footer.address}
             </div>
           </Card>
           <Card padding="lg">

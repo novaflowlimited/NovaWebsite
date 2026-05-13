@@ -522,15 +522,54 @@ export default function AdminSiteSettingsPage() {
 
       <Card>
         <h2 className="text-lg font-bold text-navy">Footer</h2>
+        <p className="text-sm text-navy/65">
+          The short <strong>address line</strong> appears next to the map pin in the footer. The <strong>office</strong> fields
+          power the left card on <Link href="/contact" className="font-semibold text-orange hover:underline">/contact</Link>{" "}
+          (street, city, county) and enrich organization metadata for search engines.
+        </p>
         <div className="mt-4 grid gap-4">
           <Field label="Tagline" value={s.footer.tagline} onChange={(v) => setS((p) => ({ ...p, footer: { ...p.footer, tagline: v } }))} />
           <Field label="Blurb" value={s.footer.blurb} onChange={(v) => setS((p) => ({ ...p, footer: { ...p.footer, blurb: v } }))} textarea />
+          <h3 className="text-sm font-bold text-navy">Contact page — office block</h3>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              label="Office title"
+              value={s.footer.officeTitle}
+              onChange={(v) => setS((p) => ({ ...p, footer: { ...p.footer, officeTitle: v } }))}
+            />
+            <Field
+              label="Street / district line"
+              value={s.footer.officeStreetLine}
+              onChange={(v) => setS((p) => ({ ...p, footer: { ...p.footer, officeStreetLine: v } }))}
+            />
+            <Field
+              label="City line"
+              value={s.footer.officeCityLine}
+              onChange={(v) => setS((p) => ({ ...p, footer: { ...p.footer, officeCityLine: v } }))}
+            />
+            <Field
+              label="County"
+              value={s.footer.officeCounty}
+              onChange={(v) => setS((p) => ({ ...p, footer: { ...p.footer, officeCounty: v } }))}
+            />
+          </div>
+          <h3 className="text-sm font-bold text-navy">Footer bar &amp; channels</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Address line" value={s.footer.address} onChange={(v) => setS((p) => ({ ...p, footer: { ...p.footer, address: v } }))} />
             <Field label="Phone display" value={s.footer.phone} onChange={(v) => setS((p) => ({ ...p, footer: { ...p.footer, phone: v } }))} />
             <Field label="Phone href" value={s.footer.phoneHref} onChange={(v) => setS((p) => ({ ...p, footer: { ...p.footer, phoneHref: v } }))} />
             <Field label="Email display" value={s.footer.email} onChange={(v) => setS((p) => ({ ...p, footer: { ...p.footer, email: v } }))} />
             <Field label="Email href" value={s.footer.emailHref} onChange={(v) => setS((p) => ({ ...p, footer: { ...p.footer, emailHref: v } }))} />
+            <Field
+              label="WhatsApp link label"
+              value={s.footer.whatsappLabel}
+              onChange={(v) => setS((p) => ({ ...p, footer: { ...p.footer, whatsappLabel: v } }))}
+            />
+            <Field
+              label="WhatsApp URL"
+              value={s.footer.whatsappHref}
+              onChange={(v) => setS((p) => ({ ...p, footer: { ...p.footer, whatsappHref: v } }))}
+            />
           </div>
         </div>
         <h3 className="mt-6 text-sm font-bold text-navy">Social links</h3>

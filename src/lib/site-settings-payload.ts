@@ -89,11 +89,23 @@ export type SiteSettingsPayload = {
   footer: {
     tagline: string;
     blurb: string;
+    /** Short line next to the map pin in the footer bar. */
     address: string;
+    /** Primary office heading on /contact. */
+    officeTitle: string;
+    /** First address line (e.g. business district). */
+    officeStreetLine: string;
+    /** County line on /contact (hidden if empty). */
+    officeCounty: string;
+    /** City and country (e.g. Nairobi, Kenya). */
+    officeCityLine: string;
     phone: string;
     phoneHref: string;
     email: string;
     emailHref: string;
+    whatsappLabel: string;
+    /** Full URL, e.g. https://wa.me/254700000000 */
+    whatsappHref: string;
     columns: FooterColumn[];
     social: SocialLink[];
   };
@@ -243,10 +255,16 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsPayload = {
     tagline: "Connect · Build · Innovate",
     blurb: "We build technology and networks that power businesses and connect communities across Africa.",
     address: "Nairobi, Kenya",
-    phone: "+254 700 123 456",
-    phoneHref: "tel:+254700123456",
+    officeTitle: "Nairobi office",
+    officeStreetLine: "Westlands Business District",
+    officeCounty: "Nairobi County",
+    officeCityLine: "Nairobi, Kenya",
+    phone: "+254 700 000 000",
+    phoneHref: "tel:+254700000000",
     email: "hello@novaflow.co.ke",
     emailHref: "mailto:hello@novaflow.co.ke",
+    whatsappLabel: "Chat with us",
+    whatsappHref: "https://wa.me/254700000000",
     columns: [
       {
         title: "Products",

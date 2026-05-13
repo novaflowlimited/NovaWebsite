@@ -22,12 +22,19 @@ export function SiteJsonLd({ settings }: { settings: SiteSettingsPayload }) {
   const logo = settings.brand.logoUrl?.trim();
   if (logo?.startsWith("http")) org.logo = logo;
 
-  const addr = settings.footer.address?.trim();
+  const addr =
+    [settings.footer.officeStreetLine, settings.footer.officeCityLine, settings.footer.officeCounty]
+      .map((s) => s?.trim())
+      .filter(Boolean)
+      .join(", ") || settings.footer.address?.trim();
   if (addr) {
     org.address = {
       "@type": "PostalAddress",
       streetAddress: addr,
       addressCountry: "KE",
+      ...(settings.footer.officeCounty?.trim()
+        ? { addressRegion: settings.footer.officeCounty.trim() }
+        : {}),
     };
   }
 

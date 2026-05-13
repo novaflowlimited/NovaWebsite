@@ -7,9 +7,10 @@ import { Card } from "@/components/ui/Card";
 import { Spinner } from "@/components/ui/Spinner";
 import { apiFetch } from "@/lib/api-client";
 import type { ApiListResponse, CommunityStory, ImpactStat } from "@/types";
+import { ImpactMapForm } from "./_components/ImpactMapForm";
 
 export default function AdminImpactPage() {
-  const [tab, setTab] = useState<"stats" | "stories">("stats");
+  const [tab, setTab] = useState<"stats" | "stories" | "map">("stats");
   const [stats, setStats] = useState<ImpactStat[]>([]);
   const [stories, setStories] = useState<CommunityStory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,21 +74,30 @@ export default function AdminImpactPage() {
         >
           Stories
         </button>
+        <button
+          type="button"
+          className={`rounded-full px-4 py-2 text-sm font-semibold ${
+            tab === "map" ? "bg-navy text-white" : "bg-white text-navy ring-1 ring-navy/10"
+          }`}
+          onClick={() => setTab("map")}
+        >
+          Kenya map
+        </button>
       </div>
-      <Link href="/admin/impact/map" className="inline-block text-sm font-semibold text-orange hover:underline">
-        Kenya map — featured county →
-      </Link>
-      <p className="text-sm text-navy/70">
-        Homepage number strip (schools, uptime, etc.): edit each stat below. Partner and trusted-org logos:{" "}
-        <Link href="/admin/client-logos" className="font-semibold text-orange hover:underline">
-          Client logos
-        </Link>
-        . Intro line above that row:{" "}
-        <Link href="/admin/site-settings" className="font-semibold text-orange hover:underline">
-          Site settings
-        </Link>{" "}
-        → Homepage: impact stats &amp; partner logos.
-      </p>
+
+      {tab === "stats" && (
+        <p className="text-sm text-navy/70">
+          Homepage number strip (schools, uptime, etc.): edit each stat below. Partner and trusted-org logos:{" "}
+          <Link href="/admin/client-logos" className="font-semibold text-orange hover:underline">
+            Client logos
+          </Link>
+          . Intro line above that row:{" "}
+          <Link href="/admin/site-settings" className="font-semibold text-orange hover:underline">
+            Site settings
+          </Link>{" "}
+          → Homepage: impact stats &amp; partner logos.
+        </p>
+      )}
 
       {tab === "stats" ? (
         <div className="space-y-4">
@@ -122,7 +132,7 @@ export default function AdminImpactPage() {
             </table>
           </Card>
         </div>
-      ) : (
+      ) : tab === "stories" ? (
         <div className="space-y-4">
           <Link href="/admin/impact/stories/new">
             <Button>New story</Button>
@@ -175,6 +185,21 @@ export default function AdminImpactPage() {
               </tbody>
             </table>
           </Card>
+        </div>
+      ) : (
+        <div className="mx-auto max-w-lg space-y-4">
+          <p className="text-sm text-navy/70">
+            Featured county card next to the simplified Kenya map (“Where we operate” on the homepage and Impact
+            page). Change county name, status pill, description, and the three counts. The map dots and legend labels
+            are still defined in code.
+          </p>
+          <ImpactMapForm />
+          <p className="text-xs text-navy/50">
+            Same editor:{" "}
+            <Link href="/admin/impact/map" className="text-orange hover:underline">
+              /admin/impact/map
+            </Link>
+          </p>
         </div>
       )}
     </div>
